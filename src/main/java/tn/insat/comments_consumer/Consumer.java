@@ -7,7 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 public class Consumer {
     public static void main(String[] args) throws Exception {
-        String topicName = args[0];
+
         Properties props = new Properties();
 
         props.put("bootstrap.servers", "localhost:9092");
@@ -26,7 +26,7 @@ public class Consumer {
         consumer.subscribe("reddit-new-comments", "reddit-comments-sentiments");
 
         // Afficher le nom du topic
-        System.out.println("Souscris au topic " + topicName);
+        System.out.println("Souscris au topic " + "reddit-new-comments" + " et " + "reddit-comments-sentiments");
         int i = 0;
 
         while (true) {
