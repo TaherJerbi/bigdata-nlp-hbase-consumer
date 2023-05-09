@@ -31,24 +31,27 @@ public class Consumer {
         int i = 0;
 
         while (true) {
-            Map<String, ConsumerRecords<String, String>> records = consumer.poll(100);
-            ConsumerRecords<String, String> raw_comments_records = records.get("reddit-new-comments");
-            ConsumerRecords<String, String> comments_sentiments_records = records.get("reddit-comments-sentiments");
+            try {
+                Map<String, ConsumerRecords<String, String>> records = consumer.poll(100);
+                ConsumerRecords<String, String> raw_comments_records = records.get("reddit-new-comments");
+                ConsumerRecords<String, String> comments_sentiments_records = records.get("reddit-comments-sentiments");
 
-            // insert raw comments into HBase
-            for (ConsumerRecord<String, String> record : raw_comments_records.records()) {
-                System.out.printf("offset = %d, key = %s, value = %s\n",
-                        record.offset(), record.key(), record.value());
-                insertRawComment(record.value());
+                // insert raw comments into HBase
+                for (ConsumerRecord<String, String> record : raw_comments_records.records()) {
+                    System.out.printf("offset = %d, key = %s, value = %s\n",
+                            record.offset(), record.key(), record.value());
+                    insertRawComment(record.value());
+                }
+
+                // insert comments sentiments into HBase
+                for (ConsumerRecord<String, String> record : comments_sentiments_records.records()) {
+                    System.out.printf("offset = %d, key = %s, value = %s\n",
+                            record.offset(), record.key(), record.value());
+                    insertCommentSentiment(record.value());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            // insert comments sentiments into HBase
-            for (ConsumerRecord<String, String> record : comments_sentiments_records.records()) {
-                System.out.printf("offset = %d, key = %s, value = %s\n",
-                        record.offset(), record.key(), record.value());
-                insertCommentSentiment(record.value());
-            }
-
         }
     }
 
