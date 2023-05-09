@@ -29,7 +29,10 @@ public class Consumer {
         // Afficher le nom du topic
         System.out.println("Souscris au topic " + "reddit-new-comments" + " et " + "reddit-comments-sentiments");
         int i = 0;
-
+        if (consumer == null) {
+            System.out.println("----- Consumer null -----");
+            return;
+        }
         while (true) {
             try {
                 Map<String, ConsumerRecords<String, String>> records = consumer.poll(100);
