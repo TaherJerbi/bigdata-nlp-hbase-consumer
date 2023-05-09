@@ -19,6 +19,7 @@ public class Consumer {
                 "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer",
                 "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("partition.assignment.strategy", "range");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
