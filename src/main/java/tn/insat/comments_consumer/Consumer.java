@@ -7,10 +7,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 public class Consumer {
     public static void main(String[] args) throws Exception {
-        if(args.length == 0){
-            System.out.println("Entrer le nom du topic");
-            return;
-        }
         String topicName = args[0];
         Properties props = new Properties();
 
