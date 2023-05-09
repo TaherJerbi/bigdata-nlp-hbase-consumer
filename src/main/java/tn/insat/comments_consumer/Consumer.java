@@ -36,6 +36,10 @@ public class Consumer {
         while (true) {
             try {
                 Map<String, ConsumerRecords<String, String>> records = consumer.poll(100);
+                if (records == null) {
+                    System.out.println("----- Records null -----");
+                    return;
+                }
                 ConsumerRecords<String, String> raw_comments_records = records.get("reddit-new-comments");
                 ConsumerRecords<String, String> comments_sentiments_records = records.get("reddit-comments-sentiments");
 
