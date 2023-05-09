@@ -1,5 +1,7 @@
 package tn.insat.comments_consumer;
 
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -19,12 +21,11 @@ public class Consumer {
                 "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer",
                 "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("partition.assignment.strategy", "range");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
         // Kafka Consumer va souscrire a la liste de topics ici
-        consumer.subscribe("reddit-new-comments", "reddit-comments-sentiments");
+        consumer.subscribe(Arrays.asList("reddit-new-comments", "reddit-comments-sentiments"));
 
         // Afficher le nom du topic
         System.out.println("Souscris au topic " + "reddit-new-comments" + " et " + "reddit-comments-sentiments");
@@ -34,26 +35,17 @@ public class Consumer {
         }
         while (true) {
             try {
-                Map<String, ConsumerRecords<String, String>> records = consumer.poll(100);
-                if (records == null) {
-                    System.out.println("----- Records null -----");
-                    continue;
-                }
-                ConsumerRecords<String, String> raw_comments_records = records.get("reddit-new-comments");
-                ConsumerRecords<String, String> comments_sentiments_records = records.get("reddit-comments-sentiments");
-
-                // insert raw comments into HBase
-                for (ConsumerRecord<String, String> record : raw_comments_records.records()) {
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(2000));
+                System.out.println("Nombre de records: "+records.count());
+                for (ConsumerRecord<String, String> record : records) {
                     System.out.printf("offset = %d, key = %s, value = %s\n",
                             record.offset(), record.key(), record.value());
-                    insertRawComment(record.value());
-                }
 
-                // insert comments sentiments into HBase
-                for (ConsumerRecord<String, String> record : comments_sentiments_records.records()) {
-                    System.out.printf("offset = %d, key = %s, value = %s\n",
-                            record.offset(), record.key(), record.value());
-                    insertCommentSentiment(record.value());
+                    if (record.topic().equals("reddit-new-comments")) {
+                         insertRawComment(record.value());
+                    } else if (record.topic().equals("reddit-comments-sentiments")) {
+                         insertCommentSentiment(record.value());
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
